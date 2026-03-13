@@ -1,0 +1,16 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Oops! Something went wrong.</h4>
+        <p>@Model</p>
+        <hr>
+        <p class="mb-0">Please contact support if this issue persists.</p>
+    </div>
+
+    <a href="/" class="btn btn-primary">Return to Home</a>
+</div>

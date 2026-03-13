@@ -9,17 +9,33 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+string? env = builder.Configuration["ConnectionStrings:DefaultConnection"];
 
 builder.Services.AddDbContext<ProductDbConntext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ProductsDb")));
+    options.UseSqlServer(env));
 
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 
-
+Console.WriteLine("Waiting for SQL Server...");
+Thread.Sleep(20000);
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ProductDbConntext>();
+        // This applies any pending migrations automatically
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

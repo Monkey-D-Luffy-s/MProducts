@@ -1,0 +1,29 @@
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Your_password123
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  products-app:
+    build:
+      context: .
+      dockerfile: Products/Dockerfile
+    container_name: products_mvc_app
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      # Use the SERVICE NAME 'database' instead of 'localhost'
+      - ConnectionStrings__DefaultConnection=Server=database;Database=MProductsDb1;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+    depends_on:
+      - database
+
+volumes:
+  sql_data:
